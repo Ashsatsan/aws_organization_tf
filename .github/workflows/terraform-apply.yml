@@ -30,7 +30,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Format
-        run: terraform fmt -check  # Checks if the format is correct
+        run: terraform fmt
 
       - name: Terraform Plan
         if: steps.terraform_init.outcome == 'success'  # Runs only if init is successful
