@@ -1,6 +1,6 @@
 resource "aws_organizations_account" "dev_account" {
   name      = "DevAccount"             # Use 'name' instead of 'account_name'
-  email     = "ragowi5300@cironex.com" # Ensure this email is unique
+  email     = "6qq7p@livinitlarge.net" # Ensure this email is unique
   role_name = "OrganizationAccountAccessRole"
   parent_id = aws_organizations_organizational_unit.dev.id # Reference directly
 
@@ -17,5 +17,16 @@ resource "aws_organizations_account" "test_account" {
 
   tags = {
     Name = "Testing Account"
+  }
+}
+
+resource "aws_organizations_account" "prod_account" {
+  name      = "ProdAccount"            # Use 'name' instead of 'account_name'
+  email     = "hundalabhijeetsingh@gmail.com" # Ensure this email is unique
+  role_name = "OrganizationAccountAccessRole"
+  parent_id = aws_organizations_organizational_unit.prod.id # Reference directly
+
+  tags = {
+    Name = "Production Account"
   }
 }
