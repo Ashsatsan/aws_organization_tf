@@ -30,11 +30,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Format
-<<<<<<< HEAD
         run: terraform fmt
-=======
-        run: terraform fmt -check  # Checks if the format is correct
->>>>>>> 8865154ffca43f6d93689bab0979439d14451d7d
 
       - name: Terraform Plan
         if: steps.terraform_init.outcome == 'success'  # Runs only if init is successful
