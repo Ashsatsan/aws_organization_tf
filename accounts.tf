@@ -1,6 +1,6 @@
 resource "aws_organizations_account" "dev_account" {
   name      = "DevAccount"             # Use 'name' instead of 'account_name'
-  email     = "6qq7p@livinitlarge.net" # Ensure this email is unique
+  email     = "ragowi5300@cironex.com" # Ensure this email is unique
   role_name = "OrganizationAccountAccessRole"
   parent_id = aws_organizations_organizational_unit.dev.id # Reference directly
 
