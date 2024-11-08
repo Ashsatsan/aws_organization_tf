@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/aws_organization_tf.iml" filepath="$PROJECT_DIR$/.idea/aws_organization_tf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Terraform_organization.iml" filepath="$PROJECT_DIR$/.idea/Terraform_organization.iml" />
     </modules>
   </component>
 </project>
