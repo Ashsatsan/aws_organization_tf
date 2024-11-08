@@ -6,9 +6,15 @@ resource "aws_iam_role" "cross_account_role" {
       {
         "Effect": "Allow",
         "Principal": {
-          "AWS": var.root_account_arn
+          "AWS": var.root_account_arn  # Root account ARN
         },
-        "Action": "sts:AssumeRole"
+        "Action": "sts:AssumeRole",
+        "Resource": [
+          # Allow cross-account access to all the accounts (dev, test, prod)
+          "arn:aws:iam::*:role/role-name-in-dev",   # Role in the dev account
+          "arn:aws:iam::*:role/role-name-in-test",  # Role in the test account
+          "arn:aws:iam::*:role/role-name-in-prod"   # Role in the prod account
+        ]
       }
     ]
   })
@@ -28,11 +34,4 @@ resource "aws_iam_role_policy" "cross_account_policy" {
       }
     ]
   })
-}
-
-# Ensure this is a managed policy, if not, remove this resource
-resource "aws_iam_role_policy_attachment" "role_policy_attachment" {
-  role       = aws_iam_role.cross_account_role.name
-  policy_arn = var.managed_policy_arn  # Use a managed policy ARN or remove if unnecessary
-  depends_on = [aws_iam_role.cross_account_role]
 }

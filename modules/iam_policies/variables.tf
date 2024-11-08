@@ -24,14 +24,6 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "managed_policy_arn" {
-  description = "ARN of the managed policy to attach to the role. Leave blank if not needed."
-  type        = string
-  default     = ""  # Optional; only provide if you need a managed policy
-}
 
-variable "depends_on_accounts" {
-  description = "List of account resources that this module depends on"
-  type        = list(any)
-  default     = []  # Optional; set dependencies if needed
-}
+
+
