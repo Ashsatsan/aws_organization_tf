@@ -12,7 +12,6 @@ resource "aws_iam_role" "cross_account_role" {
       }
     ]
   })
-
   tags = var.tags
 }
 
@@ -31,8 +30,9 @@ resource "aws_iam_role_policy" "cross_account_policy" {
   })
 }
 
+# Ensure this is a managed policy, if not, remove this resource
 resource "aws_iam_role_policy_attachment" "role_policy_attachment" {
   role       = aws_iam_role.cross_account_role.name
-  policy_arn = aws_iam_role_policy.cross_account_policy.id
-  depends_on = var.depends_on_accounts
+  policy_arn = var.managed_policy_arn  # Use a managed policy ARN or remove if unnecessary
+  depends_on = [aws_iam_role.cross_account_role]
 }

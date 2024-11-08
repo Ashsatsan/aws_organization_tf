@@ -1,5 +1,5 @@
 # Define Cross Account Role (same as your original code)
-resource "aws_iam_role" "cross_account_role" {
+/*resource "aws_iam_role" "cross_account_role" {
   name               = "CrossAccountAccessRole"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
@@ -63,6 +63,39 @@ resource "aws_iam_role_policy_attachment" "prod_account_cross_account_attachment
   role       = aws_iam_role.cross_account_role.name
   policy_arn = aws_iam_role_policy.cross_account_policy.id
   depends_on = [aws_organizations_account.prod_account]
+}*/
+
+resource "aws_iam_role" "cloudtrail_logs_role" {
+  name = "CloudTrailLogsRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "sts:AssumeRole"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Effect    = "Allow"
+        Sid       = ""
+      }
+    ]
+  })
 }
 
+resource "aws_iam_role_policy" "cloudtrail_logs_policy" {
+  name = "CloudTrailLogsPolicy"
+  role = aws_iam_role.cloudtrail_logs_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "logs:PutLogEvents"
+        Effect    = "Allow"
+        Resource  = var.cloudwatch_logs_group_arn
+      }
+    ]
+  })
+}
 

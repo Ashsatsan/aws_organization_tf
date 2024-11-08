@@ -104,6 +104,7 @@ POLICY
   type = "SERVICE_CONTROL_POLICY"
 }
 
+# Attach each policy to the relevant child OU, using the IDs passed from the `shared_ous` module
 resource "aws_organizations_policy_attachment" "attach_dev_scp" {
   policy_id = aws_organizations_policy.dev_scp.id
   target_id = var.dev_ou_id
