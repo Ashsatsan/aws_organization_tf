@@ -104,7 +104,40 @@ POLICY
   type = "SERVICE_CONTROL_POLICY"
 }
 
-# Attach each policy to the relevant child OU, using the IDs passed from the `shared_ous` module
+resource "aws_organizations_policy" "shared_scp" {
+  name        = "SharedServicesRestrictedAccess"
+  description = "Allow access to shared resources like VPC, CloudTrail, and S3"
+  content     = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeVpcs",
+        "ec2:DescribeSubnets",
+        "cloudtrail:DescribeTrails",
+        "s3:ListBucket",
+        "s3:GetObject"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Deny",
+      "Action": [
+        "iam:*",
+        "organizations:*",
+        "account:*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+POLICY
+  type = "SERVICE_CONTROL_POLICY"
+}
+
+# Attach each SCP to the relevant OU
 resource "aws_organizations_policy_attachment" "attach_dev_scp" {
   policy_id = aws_organizations_policy.dev_scp.id
   target_id = var.dev_ou_id
@@ -118,4 +151,9 @@ resource "aws_organizations_policy_attachment" "attach_test_scp" {
 resource "aws_organizations_policy_attachment" "attach_prod_scp" {
   policy_id = aws_organizations_policy.prod_scp.id
   target_id = var.prod_ou_id
+}
+
+resource "aws_organizations_policy_attachment" "attach_shared_scp" {
+  policy_id = aws_organizations_policy.shared_scp.id
+  target_id = var.shared_ou_id
 }

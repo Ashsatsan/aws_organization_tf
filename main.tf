@@ -26,17 +26,17 @@ module "iam_policies" {
   tags                = {}
 }
 
-module "shared_ous" {
-  source     = "./modules/shared_ous"
-  ou_names   = ["Dev", "Test", "Prod"]
-  parent_id  = "r-xxxxxxxx"
+module "create_ous" {
+  source    = "./modules/ous"
+  parent_id = data.aws_organizations_organization.org.roots.0.id
 }
 
 module "scp_policies" {
   source      = "./modules/scp_policies"
-  dev_ou_id   = module.shared_ous.child_ou_ids[0]
-  test_ou_id  = module.shared_ous.child_ou_ids[1]
-  prod_ou_id  = module.shared_ous.child_ou_ids[2]
+  dev_ou_id   = module.create_ous.ou_ids["DEV"]
+  test_ou_id  = module.create_ous.ou_ids["TEST"]
+  prod_ou_id  = module.create_ous.ou_ids["PROD"]
+  shared_ou_id = module.create_ous.ou_ids["SHARED"]
 }
 
 

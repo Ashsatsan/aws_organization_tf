@@ -1,56 +1,96 @@
-resource "aws_cloudtrail" "shared_trail" {
-  name                          = var.cloudtrail_name
-  s3_bucket_name                = aws_s3_bucket.cloudtrail_logs.bucket
-  cloud_watch_logs_group_arn    = aws_cloudwatch_log_group.cloudtrail_logs.arn
-  cloud_watch_logs_role_arn     = aws_iam_role.cloudtrail_cloudwatch_role.arn
-  is_organization_trail         = true
-  include_global_service_events = true
-  enable_log_file_validation    = true
-  kms_key_id                    = var.kms_key_id
+# Create an S3 bucket to store CloudTrail logs
+resource "aws_s3_bucket" "cloudtrail_bucket" {
+  bucket = "${var.environment}-cloudtrail-logs-${var.account_id}"
+  acl    = "private"
 
-  tags = var.tags
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.environment}-cloudtrail-bucket"
+    }
+  )
 }
 
-resource "aws_s3_bucket" "cloudtrail_logs" {
-  bucket = var.s3_bucket_name
+# S3 Bucket Policy to allow CloudTrail to write logs
+resource "aws_s3_bucket_policy" "cloudtrail_policy" {
+  bucket = aws_s3_bucket.cloudtrail_bucket.id
 
-  # Bucket policy to allow CloudTrail to write to this bucket
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    Version = "2012-10-17",
+    Statement = [
       {
-        "Effect": "Allow",
-        "Principal": { "Service": "cloudtrail.amazonaws.com" },
-        "Action": "s3:PutObject",
-        "Resource": "arn:aws:s3:::${var.s3_bucket_name}/AWSLogs/*",
-        "Condition": {
-          "StringEquals": { "s3:x-amz-acl": "bucket-owner-full-control" }
+        Sid       = "AWSCloudTrailWrite",
+        Effect    = "Allow",
+        Principal = { Service = "cloudtrail.amazonaws.com" },
+        Action    = "s3:PutObject",
+        Resource  = "${aws_s3_bucket.cloudtrail_bucket.arn}/*",
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl" = "bucket-owner-full-control"
+          }
         }
       }
     ]
   })
 }
 
-resource "aws_cloudwatch_log_group" "cloudtrail_logs" {
-  name              = var.cloudwatch_log_group_name
-  retention_in_days = var.log_retention_days
+# Create CloudTrail
+resource "aws_cloudtrail" "this" {
+  name                          = "${var.environment}-cloudtrail"
+  s3_bucket_name                = aws_s3_bucket.cloudtrail_bucket.bucket
+  include_global_service_events = true
+  is_multi_region_trail         = true
+  enable_log_file_validation    = true
+  is_organization_trail         = var.is_organization_trail
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.environment}-cloudtrail"
+    }
+  )
 }
 
-resource "aws_iam_role" "cloudtrail_cloudwatch_role" {
-  name               = var.cloudtrail_role_name
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+# Optionally, create an SNS topic for notifications
+resource "aws_sns_topic" "cloudtrail_topic" {
+  count = var.enable_notifications ? 1 : 0
+
+  name = "${var.environment}-cloudtrail-notifications"
+
+  tags = merge(
+    var.tags,
+    {
+      Name = "${var.environment}-cloudtrail-notifications"
+    }
+  )
+}
+
+resource "aws_sns_topic_policy" "cloudtrail_topic_policy" {
+  count = var.enable_notifications ? 1 : 0
+
+  arn    = aws_sns_topic.cloudtrail_topic[0].arn
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
       {
-        "Effect": "Allow",
-        "Principal": { "Service": "cloudtrail.amazonaws.com" },
-        "Action": "sts:AssumeRole"
+        Sid       = "AWSCloudTrailSNSPolicy",
+        Effect    = "Allow",
+        Principal = { Service = "cloudtrail.amazonaws.com" },
+        Action    = "SNS:Publish",
+        Resource  = aws_sns_topic.cloudtrail_topic[0].arn
       }
     ]
   })
-}
-
-resource "aws_iam_role_policy_attachment" "cloudtrail_policy_attachment" {
-  role       = aws_iam_role.cloudtrail_cloudwatch_role.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
 }

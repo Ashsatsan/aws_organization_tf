@@ -1,36 +1,28 @@
-variable "cloudtrail_name" {
-  description = "Name of the CloudTrail"
+variable "environment" {
+  description = "Environment name (e.g., shared, dev, test)"
+  type        = string
+  default     = "shared"
+}
+
+variable "account_id" {
+  description = "AWS Account ID of the SharedServicesAccount"
   type        = string
 }
 
-variable "s3_bucket_name" {
-  description = "S3 bucket for storing CloudTrail logs"
-  type        = string
+variable "is_organization_trail" {
+  description = "Whether this is an organization-wide trail"
+  type        = bool
+  default     = true
 }
 
-variable "cloudwatch_log_group_name" {
-  description = "Name of the CloudWatch log group for CloudTrail logs"
-  type        = string
-}
-
-variable "log_retention_days" {
-  description = "Retention period for CloudWatch log group (in days)"
-  type        = number
-  default     = 365
-}
-
-variable "cloudtrail_role_name" {
-  description = "Name of the IAM role for CloudTrail to assume for CloudWatch logging"
-  type        = string
-}
-
-variable "kms_key_id" {
-  description = "KMS Key ID for encrypting the CloudTrail logs"
-  type        = string
-  default     = ""  # Optional; can be empty if KMS encryption is not required
+variable "enable_notifications" {
+  description = "Whether to enable SNS notifications for CloudTrail"
+  type        = bool
+  default     = false
 }
 
 variable "tags" {
-  description = "Tags to apply to CloudTrail and associated resources"
+  description = "Tags to assign to resources"
   type        = map(string)
+  default     = {}
 }

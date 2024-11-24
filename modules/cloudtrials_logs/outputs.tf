@@ -1,14 +1,14 @@
-output "cloudtrail_id" {
-  description = "ID of the CloudTrail"
-  value       = aws_cloudtrail.shared_trail.id
+output "cloudtrail_name" {
+  description = "The name of the CloudTrail"
+  value       = aws_cloudtrail.this.name
 }
 
-output "cloudtrail_s3_bucket_name" {
-  description = "Name of the S3 bucket where CloudTrail logs are stored"
-  value       = aws_s3_bucket.cloudtrail_logs.bucket
+output "cloudtrail_bucket" {
+  description = "The S3 bucket used for CloudTrail logs"
+  value       = aws_s3_bucket.cloudtrail_bucket.bucket
 }
 
-output "cloudtrail_cloudwatch_log_group" {
-  description = "CloudWatch Log Group for CloudTrail logs"
-  value       = aws_cloudwatch_log_group.cloudtrail_logs.name
+output "sns_topic_arn" {
+  description = "The ARN of the SNS topic for notifications"
+  value       = aws_sns_topic.cloudtrail_topic[0].arn
 }
