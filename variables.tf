@@ -13,8 +13,13 @@ variable "root_account_arn" {
   type        = string
 }
 
+variable "emailer" {
+  description = "Map of account names to their emails"
+  type        = map(string)
+}
 
-
-
-
+variable "vpc_resource_arn" {
+  description = "The ARN of the VPC to be shared"
+  type        = string
+}
 
